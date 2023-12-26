@@ -8,6 +8,7 @@ from odoo import _
 from odoo.exceptions import UserError
 
 from odoo.addons.connector_search_engine.tools.adapter import SearchEngineAdapter
+from elasticsearch.exceptions import NotFoundError, AuthenticationException
 
 _logger = logging.getLogger(__name__)
 
@@ -59,18 +60,21 @@ class ElasticSearchAdapter(SearchEngineAdapter):
             [backend.es_server_host],
             connection_class=self._es_connection_class,
             api_key=api_key,
-            http_auth=('elastic', 'RajA0f9Hnbi1VKSRfx3t'),
         )
 
     def test_connection(self):
         es = self._es_client
         try:
-            es.security.authenticate()
-        except elasticsearch.NotFoundError as exc:
+            # Attempt to perform a simple operation to check the connection
+            es.ping()
+
+        except NotFoundError as exc:
             raise UserError(_("Unable to reach host.")) from exc
-        except elasticsearch.AuthenticationException as exc:
+
+        except AuthenticationException as exc:
             _logger.error(exc)
             raise UserError(_("Unable to authenticate. Check credentials.")) from exc
+
         except Exception as exc:
             raise UserError(_("Unable to connect :") + "\n\n" + repr(exc)) from exc
 
