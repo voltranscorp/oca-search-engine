@@ -8,6 +8,7 @@ from odoo import _
 from odoo.exceptions import UserError
 
 from odoo.addons.connector_search_engine.tools.adapter import SearchEngineAdapter
+from elasticsearch.exceptions import NotFoundError, AuthenticationException
 
 _logger = logging.getLogger(__name__)
 
